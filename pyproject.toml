@@ -1,0 +1,65 @@
+[project]
+name = "k8s-model-generator"
+version = "0.1.0"
+description = "Kubernetes data model generator"
+readme = "README.md"
+authors = [
+    { name = "Alexey Busygin", email = "yaabusygin@gmail.com" },
+]
+urls = { homepage = "https://github.com/yabusygin/k8s-model-generator" }
+license = "MIT"
+requires-python = ">=3.14.0,<4.0.0"
+dependencies = [
+    "datamodel-code-generator~=0.65.0",
+    "typer~=0.26.0",
+]
+
+[dependency-groups]
+dev = [
+    "mypy~=2.1",
+    "pytest~=9.1",
+    "requests~=2.34",
+    "ruff~=0.15.0",
+]
+
+[project.scripts]
+k8s-model-generator = "k8s_model_generator.cmd:app"
+
+[build-system]
+requires = ["uv_build>=0.11.24,<0.12.0"]
+build-backend = "uv_build"
+
+[tool.mypy]
+packages = [
+    "k8s_model_generator",
+    "tests",
+]
+strict = true
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle
+    "F",   # Pyflakes
+    "UP",  # pyupgrade
+    "B",   # flake8-bugbear
+    "SIM", # flake8-simplify
+    "I",   # isort
+    "D",   # pydocstyle
+]
+ignore = [
+    # pydocstyle
+    "D100", # undocumented-public-module
+    "D101", # undocumented-public-class
+    "D102", # undocumented-public-method
+    "D103", # undocumented-public-function
+    "D104", # undocumented-public-package
+    "D105", # undocumented-magic-method
+    "D106", # undocumented-public-nested-class
+    "D107", # undocumented-public-init
+    "D203", # incorrect-blank-line-before-class
+    "D213", # multi-line-summary-second-line
+]
+
+[tool.pytest]
+addopts = ["--import-mode=importlib"]
+testpaths = ["tests"]
