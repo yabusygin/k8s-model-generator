@@ -63,10 +63,10 @@ def preprocess_input(input_files: Iterable[Path], preprocessed_file: Path) -> No
     )
 
 
-def generate(input_file: Path, output_dir: Path) -> None:
+def generate(input_files: Iterable[Path], output_dir: Path) -> None:
     with TemporaryDirectory() as tmp_dir:
-        preprocessed_file = Path(tmp_dir, input_file.name)
-        preprocess_input([input_file], preprocessed_file)
+        preprocessed_file = Path(tmp_dir, "openapi.json")
+        preprocess_input(input_files, preprocessed_file)
         _generate(
             input_=preprocessed_file,
             config=GenerateConfig(

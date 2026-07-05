@@ -8,5 +8,5 @@ app = Typer()
 
 
 @app.command()
-def main(input_file: Path, output_dir: Path) -> None:
-    generate(input_file, output_dir)
+def main(input_files: list[Path], output_dir: Path) -> None:
+    generate(input_files, output_dir)

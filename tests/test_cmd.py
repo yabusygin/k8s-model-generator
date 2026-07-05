@@ -1,3 +1,4 @@
+from collections.abc import Iterable
 from importlib import import_module
 from pathlib import Path
 
@@ -16,11 +17,17 @@ def runner() -> CliRunner:
 
 
 def test_app(
-    runner: CliRunner, kubernetes_openapi_v3_spec_dir: Path, sys_path_dir: Path
+    runner: CliRunner,
+    kubernetes_openapi_v3_spec_files: Iterable[Path],
+    sys_path_dir: Path,
 ) -> None:
-    input_file = Path(kubernetes_openapi_v3_spec_dir, "api__v1_openapi.json")
+    input_files = list(kubernetes_openapi_v3_spec_files)
     output_dir = create_package("testmodels", sys_path_dir)
-    result = runner.invoke(app, [str(input_file), str(output_dir)])
+    args = list(map(str, input_files))
+    args.append(str(output_dir))
+    result = runner.invoke(app, args)
     assert result.exit_code == 0
-    v1 = import_module("testmodels.io.k8s.api.core.v1")
-    assert issubclass(v1.Pod, BaseModel)
+    core_v1 = import_module("testmodels.io.k8s.api.core.v1")
+    assert issubclass(core_v1.Pod, BaseModel)
+    networking_v1 = import_module("testmodels.io.k8s.api.networking.v1")
+    assert issubclass(networking_v1.NetworkPolicy, BaseModel)

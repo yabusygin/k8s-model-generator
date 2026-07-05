@@ -1,4 +1,5 @@
-from importlib import import_module
+from collections.abc import Iterable
+from importlib import import_module, invalidate_caches
 from json import dumps, loads
 from pathlib import Path
 from typing import Any
@@ -11,12 +12,16 @@ from k8s_model_generator.generator import generate, preprocess_input, preprocess
 from .utils import create_package
 
 
-def test_generate(kubernetes_openapi_v3_spec_dir: Path, sys_path_dir: Path) -> None:
-    input_file = Path(kubernetes_openapi_v3_spec_dir, "api__v1_openapi.json")
+def test_generate(
+    kubernetes_openapi_v3_spec_files: Iterable[Path], sys_path_dir: Path
+) -> None:
     output_dir = create_package("testmodels", sys_path_dir)
-    generate(input_file, output_dir)
-    v1 = import_module("testmodels.io.k8s.api.core.v1")
-    assert issubclass(v1.Pod, BaseModel)
+    generate(kubernetes_openapi_v3_spec_files, output_dir)
+    invalidate_caches()
+    core_v1 = import_module("testmodels.io.k8s.api.core.v1")
+    assert issubclass(core_v1.Pod, BaseModel)
+    networking_v1 = import_module("testmodels.io.k8s.api.networking.v1")
+    assert issubclass(networking_v1.NetworkPolicy, BaseModel)
 
 
 @mark.parametrize(
