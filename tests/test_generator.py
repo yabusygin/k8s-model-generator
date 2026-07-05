@@ -48,8 +48,10 @@ def test_preprocess_schema(
 
 
 @fixture
-def input_file(tmp_path: Path) -> Path:
-    return Path(tmp_path, "input_openapi.json")
+def input_dir(tmp_path: Path) -> Path:
+    _input_dir = Path(tmp_path, "input")
+    _input_dir.mkdir()
+    return _input_dir
 
 
 @fixture
@@ -58,28 +60,30 @@ def preprocessed_file(tmp_path: Path) -> Path:
 
 
 @mark.parametrize(
-    argnames=("input_openapi", "preprocessed_openapi"),
+    argnames=("input_openapis", "preprocessed_openapi"),
     argvalues=[
         (
-            {
-                "openapi": "3.0.0",
-                "info": {
-                    "title": "Kubernetes",
-                    "version": "unversioned",
-                },
-                "paths": {},
-                "components": {
-                    "schemas": {
-                        "io.k8s.apimachinery.pkg.util.intstr.IntOrString": {
-                            "format": "int-or-string",
-                            "oneOf": [
-                                {"type": "integer"},
-                                {"type": "string"},
-                            ],
-                        }
+            [
+                {
+                    "openapi": "3.0.0",
+                    "info": {
+                        "title": "Kubernetes",
+                        "version": "unversioned",
+                    },
+                    "paths": {},
+                    "components": {
+                        "schemas": {
+                            "io.k8s.apimachinery.pkg.util.intstr.IntOrString": {
+                                "format": "int-or-string",
+                                "oneOf": [
+                                    {"type": "integer"},
+                                    {"type": "string"},
+                                ],
+                            }
+                        },
                     },
                 },
-            },
+            ],
             {
                 "openapi": "3.0.0",
                 "info": {
@@ -99,14 +103,98 @@ def preprocessed_file(tmp_path: Path) -> Path:
                 },
             },
         ),
+        (
+            [
+                {
+                    "openapi": "3.0.0",
+                    "info": {
+                        "title": "Kubernetes",
+                        "version": "unversioned",
+                    },
+                    "paths": {},
+                    "components": {
+                        "schemas": {
+                            "test.Foo": {
+                                "type": "object",
+                                "properties": {
+                                    "foo1": {
+                                        "type": "string",
+                                    }
+                                },
+                            }
+                        },
+                    },
+                },
+                {
+                    "openapi": "3.0.0",
+                    "info": {
+                        "title": "Kubernetes",
+                        "version": "unversioned",
+                    },
+                    "paths": {},
+                    "components": {
+                        "schemas": {
+                            "test.Foo": {
+                                "type": "object",
+                                "properties": {
+                                    "foo2": {
+                                        "type": "string",
+                                    }
+                                },
+                            },
+                            "test.Bar": {
+                                "type": "object",
+                                "properties": {
+                                    "bar": {
+                                        "type": "string",
+                                    }
+                                },
+                            },
+                        },
+                    },
+                },
+            ],
+            {
+                "openapi": "3.0.0",
+                "info": {
+                    "title": "k8s-model-generator",
+                    "version": "unversioned",
+                },
+                "paths": {},
+                "components": {
+                    "schemas": {
+                        "test.Foo": {
+                            "type": "object",
+                            "properties": {
+                                "foo1": {
+                                    "type": "string",
+                                }
+                            },
+                        },
+                        "test.Bar": {
+                            "type": "object",
+                            "properties": {
+                                "bar": {
+                                    "type": "string",
+                                }
+                            },
+                        },
+                    },
+                },
+            },
+        ),
     ],
 )
 def test_preprocess_input(
-    input_openapi: dict[str, Any],
-    input_file: Path,
+    input_openapis: list[dict[str, Any]],
+    input_dir: Path,
     preprocessed_file: Path,
     preprocessed_openapi: dict[str, Any],
 ) -> None:
-    input_file.write_text(dumps(input_openapi))
-    preprocess_input(input_file, preprocessed_file)
+    input_files: list[Path] = []
+    for i, input_openapi in enumerate(input_openapis):
+        input_file = Path(input_dir, f"{i}_openapi.json")
+        input_file.write_text(dumps(input_openapi))
+        input_files.append(input_file)
+    preprocess_input(input_files, preprocessed_file)
     assert loads(preprocessed_file.read_text()) == preprocessed_openapi

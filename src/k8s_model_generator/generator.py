@@ -1,3 +1,4 @@
+from collections.abc import Iterable
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Any
@@ -30,15 +31,19 @@ def preprocess_schema(title: str, schema: dict[str, Any]) -> None:
         fix_int_or_string_warnings(schema)
 
 
-def preprocess_input(input_file: Path, preprocessed_file: Path) -> None:
+def preprocess_input(input_files: Iterable[Path], preprocessed_file: Path) -> None:
     schemas: dict[str, dict[str, Any]] = {}
-    openapi = OpenAPIObject.model_validate_json(input_file.read_text(encoding="utf-8"))
-    for title, schema in map(
-        lambda item: (item[0], item[1].model_dump(mode="json")),
-        openapi.components.schemas.items(),
-    ):
-        preprocess_schema(title, schema)
-        schemas[title] = schema
+    for input_file in input_files:
+        openapi = OpenAPIObject.model_validate_json(
+            input_file.read_text(encoding="utf-8")
+        )
+        for title, schema in map(
+            lambda item: (item[0], item[1].model_dump(mode="json")),
+            openapi.components.schemas.items(),
+        ):
+            if title not in schemas:
+                preprocess_schema(title, schema)
+                schemas[title] = schema
     preprocessed_openapi = OpenAPIObject.model_validate(
         {
             "openapi": "3.0.0",
@@ -61,7 +66,7 @@ def preprocess_input(input_file: Path, preprocessed_file: Path) -> None:
 def generate(input_file: Path, output_dir: Path) -> None:
     with TemporaryDirectory() as tmp_dir:
         preprocessed_file = Path(tmp_dir, input_file.name)
-        preprocess_input(input_file, preprocessed_file)
+        preprocess_input([input_file], preprocessed_file)
         _generate(
             input_=preprocessed_file,
             config=GenerateConfig(
