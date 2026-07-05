@@ -17,9 +17,11 @@ from .conftest import KUBERNETES_OPENAPI_V3_SPEC_FILE_NAMES
 
 @mark.parametrize(
     argnames=("spec_file_name",),
-    argvalues=map(
-        lambda name: (name,),
-        KUBERNETES_OPENAPI_V3_SPEC_FILE_NAMES,
+    argvalues=list(
+        map(
+            lambda name: (name,),
+            KUBERNETES_OPENAPI_V3_SPEC_FILE_NAMES,
+        )
     ),
 )
 def test_openapi_object_validation(
