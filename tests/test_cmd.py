@@ -23,8 +23,8 @@ def test_app(
 ) -> None:
     input_files = list(kubernetes_openapi_v3_spec_files)
     output_dir = create_package("testmodels", sys_path_dir)
-    args = list(map(str, input_files))
-    args.append(str(output_dir))
+    args = [str(output_dir)]
+    args.extend(map(str, input_files))
     result = runner.invoke(app, args)
     assert result.exit_code == 0
     core_v1 = import_module("testmodels.io.k8s.api.core.v1")
