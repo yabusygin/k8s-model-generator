@@ -1,4 +1,4 @@
-from collections.abc import Iterator
+from collections.abc import Iterable, Iterator
 from pathlib import Path
 from sys import path as sys_path
 
@@ -30,7 +30,16 @@ def kubernetes_openapi_v3_spec_dir(pytestconfig: Config) -> Path:
 
 
 @fixture
+def kubernetes_openapi_v3_spec_files(
+    kubernetes_openapi_v3_spec_dir: Path,
+) -> Iterable[Path]:
+    return kubernetes_openapi_v3_spec_dir.glob("*_openapi.json")
+
+
+@fixture
 def sys_path_dir(tmp_path: Path) -> Iterator[Path]:
-    sys_path.append(str(tmp_path))
-    yield tmp_path
-    sys_path.remove(str(tmp_path))
+    lib_dir = Path(tmp_path, "lib")
+    lib_dir.mkdir()
+    sys_path.append(str(lib_dir))
+    yield lib_dir
+    sys_path.remove(str(lib_dir))
