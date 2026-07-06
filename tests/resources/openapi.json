@@ -1,0 +1,42 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "k8s-model-generator test",
+        "version": "0.1.0"
+    },
+    "paths": {},
+    "components": {
+        "schemas": {
+            "test.v1.Pet": {
+                "type": "object",
+                "properties": {
+                    "kind": {
+                        "type": "string",
+                        "enum": [
+                            "cat",
+                            "dog"
+                        ]
+                    },
+                    "name": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "age": {
+                        "$ref": "#/components/schemas/test.v1.Age"
+                    },
+                    "saysWhat": {
+                        "type": "string",
+                        "description": "What does the pet say.",
+                        "default": "wat"
+                    }
+                },
+                "required": [
+                    "kind"
+                ]
+            },
+            "test.v1.Age": {
+                "type": "integer"
+            }
+        }
+    }
+}

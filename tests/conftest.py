@@ -4,7 +4,7 @@ from sys import path as sys_path
 
 from pytest import Config, fixture
 
-from .utils import download
+from .utils import Package, create_unique_package, download
 
 KUBERNETES_OPENAPI_V3_SPEC_VERSION = "1.36.2"
 KUBERNETES_OPENAPI_V3_SPEC_FILE_NAMES = [
@@ -43,3 +43,8 @@ def sys_path_dir(tmp_path: Path) -> Iterator[Path]:
     sys_path.append(str(lib_dir))
     yield lib_dir
     sys_path.remove(str(lib_dir))
+
+
+@fixture
+def unique_package(sys_path_dir: Path) -> Package:
+    return create_unique_package("testmodels_", sys_path_dir)
