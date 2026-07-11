@@ -1,10 +1,11 @@
 from collections.abc import Iterable, Iterator
 from pathlib import Path
 from sys import path as sys_path
+from uuid import uuid4
 
 from pytest import Config, fixture
 
-from .utils import Package, create_unique_package, download
+from .utils import download
 
 KUBERNETES_OPENAPI_V3_SPEC_VERSION = "1.36.2"
 KUBERNETES_OPENAPI_V3_SPEC_FILE_NAMES = [
@@ -46,5 +47,11 @@ def sys_path_dir(tmp_path: Path) -> Iterator[Path]:
 
 
 @fixture
-def unique_package(sys_path_dir: Path) -> Package:
-    return create_unique_package("testmodels_", sys_path_dir)
+def unique_package_name() -> str:
+    name_suffix = uuid4().hex
+    return f"testmodels_{name_suffix}"
+
+
+@fixture
+def output_dir(sys_path_dir: Path, unique_package_name: str) -> Path:
+    return Path(sys_path_dir, unique_package_name)
