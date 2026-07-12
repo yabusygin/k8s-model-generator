@@ -8,8 +8,6 @@ Models generation example:
 ```sh
 curl --remote-name https://raw.githubusercontent.com/kubernetes/kubernetes/v1.36.2/api/openapi-spec/v3/api__v1_openapi.json
 curl --remote-name https://raw.githubusercontent.com/kubernetes/kubernetes/v1.36.2/api/openapi-spec/v3/apis__apps__v1_openapi.json
-mkdir mymodels
-touch mymodels/__init__.py
 uv run k8s-model-generator mymodels api__v1_openapi.json apis__apps__v1_openapi.json
 ```
 
